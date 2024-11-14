@@ -1,49 +1,17 @@
-name: CI/CD Pipeline
+name: Super-Linter
 
-# Trigger the workflow on push to main branch or pull request
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: push
 
 jobs:
-  build:
-    runs-on: ubuntu-latest  # Runs the job on the latest Ubuntu runner
-
+  super-lint:
+    name: Lint code base
+    runs-on: ubuntu-latest
     steps:
-    # Step 1: Checkout the code from GitHub
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    # Step 2: Set up Node.js environment
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16'  # Choose the Node.js version you want to use
-
-    # Step 3: Install dependencies using npm
-    - name: Install dependencies
-      run: npm install
-
-    # Step 4: Run tests (if you have tests set up in your project)
-    - name: Run tests
-      run: npm test
-
-    # Step 5: Deploy the app (this is optional and can be customized)
-    - name: Deploy to production
-      run: |
-        # Example: Deploy using AWS CLI or your custom deployment script
-        aws s3 cp ./build/ s3://your-bucket-name/ --recursive
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: 'us-west-2'
-      
-    # Optional: Step to notify on success or failure
-    - name: Notify success
-      if: success()
-      run: echo 'Deployment successful!'
-
+      - name: Run Super-Linter
+        uses: github/super-linter@v4
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
